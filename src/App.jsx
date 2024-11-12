@@ -22,7 +22,7 @@ function NameTable({ expenses, onSelected, selectedItem }) {
 
 function Button({children, onClick}) {
     return (
-        <button onClick={onClick} className="Button">{children}</button>
+        <button onClick={onClick} className="button">{children}</button>
     )
 }
 
@@ -156,7 +156,7 @@ function AddForm({categories, onAddItem}) {
     )
 }
 
-function UpdateForm({ selectedItem, onUpdate }) {
+function UpdateForm({ selectedItem, onUpdate, onSetWhichIsToShow }) {
     const [newName, setNewName] = useState(selectedItem.name);
     const [newCount, setNewCount] = useState(selectedItem.amount);
     const [newCategory, setNewCategory] = useState(selectedItem.category);
@@ -212,6 +212,7 @@ function UpdateForm({ selectedItem, onUpdate }) {
 
                 <Button>Update</Button>
             </form>
+            <Button onClick={() => {onSetWhichIsToShow('detail')}}>Cancel</Button>
         </div>
     )
 }
@@ -281,7 +282,7 @@ function App() {
                 <Button onClick={handleAddToShow}>
                     { whichIsToShow === 'add' && 'Close'}
                     { whichIsToShow === 'detail' && 'Add'}
-                    { whichIsToShow === 'update' && 'Update'}
+                    { whichIsToShow === 'update' && 'Add'}
                 </Button>
             </div>
 
@@ -303,6 +304,7 @@ function App() {
                     <UpdateForm
                         selectedItem={selectedItem}
                         onUpdate={handleUpdate}
+                        onSetWhichIsToShow={setWhichIsToShow}
                     /> }
             </div>
 

@@ -12,6 +12,13 @@ div {
   color: #333;
 }
 
+.button{
+  display: inline-block;
+  width: 10rem;
+  height: 2.4rem ;
+  margin-bottom: 1.6rem;
+}
+
 /* Layout for the App */
 .App {
   display: grid;
