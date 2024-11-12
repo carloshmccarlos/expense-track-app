@@ -96,7 +96,7 @@ function FilterByCategory({selectedCategory, expenses, onClose}) {
     )
 }
 
-function AddForm({categories, onAddItem}) {
+function AddForm({ categories, onAddItem, length}) {
     const [newName, setNewName] = useState('');
     const [newCount, setNewCount] = useState('');
     const [newCategory, setNewCategory] = useState('Food');
@@ -109,7 +109,7 @@ function AddForm({categories, onAddItem}) {
         }
 
         const newExpense = {
-            id: crypto.randomUUID(),
+            id: length + 1,
             name: newName,
             amount: Number(newCount),
             category: newCategory,
@@ -217,6 +217,8 @@ function UpdateForm({ selectedItem, onUpdate, onSetWhichIsToShow }) {
     )
 }
 
+let id = initialData.length;
+
 function App() {
     const [whichIsToShow, setWhichIsToShow] = useState('detail');
     const [expenses, setExpenses] = useState(initialData);
@@ -252,6 +254,8 @@ function App() {
         setSelectedItem(updatedExpense[updatedExpense.length - 1]);
 
         setWhichIsToShow('detail');
+
+        id = id + 1;
     }
 
     function handleUpdate(newExpense) {
@@ -298,6 +302,7 @@ function App() {
                     <AddForm
                         categories={categories}
                         onAddItem={handleAddItem}
+                        length={id}
                     /> }
 
                 { whichIsToShow === 'update' &&
