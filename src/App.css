@@ -1,0 +1,137 @@
+/* Reset and Font */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* Main Container */
+div {
+  padding: 1rem;
+  color: #333;
+}
+
+/* Layout for the App */
+.App {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+p {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* Main Sections Styling */
+.MainTable, .Detail, .CountByCategory {
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  overflow-y: auto;
+  height: 500px;
+}
+
+/* List Styling */
+ul {
+  list-style: none;
+}
+
+ul li {
+  padding: 0.5rem 0;
+}
+
+/* Item Component */
+.Item {
+  font-size: 1rem;
+  padding: 0.3rem 0;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background-color 0.3s;
+}
+
+.selected, .Item:hover {
+  background-color: #4caf50;
+  color: white;
+}
+
+/* Button Styling */
+button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Form Styling */
+form {
+  display: grid;
+  gap: 1rem;
+}
+
+form div {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-size: 0.9rem;
+  margin-bottom: 0.2rem;
+}
+
+input[type="text"], select {
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  transition: border-color 0.3s;
+}
+
+input[type="text"]:focus, select:focus {
+  border-color: #007bff;
+}
+
+/* CountByCategory Layout */
+.CountByCategory div {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  font-weight: bold;
+  border-bottom: 1px solid #eee;
+}
+
+.CountByCategory div:last-child {
+  border-bottom: none;
+}
+
+/* Category-Specific Colors */
+.Detail .category-Food { color: #4caf50; }
+.Detail .category-Travel { color: #ff9800; }
+.Detail .category-Utilities { color: #2196f3; }
+.Detail .category-Entertainment { color: #9c27b0; }
+.Detail .category-Shopping { color: #e91e63; }
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .App {
+    padding: 1rem;
+    grid-template-columns: 1fr;
+  }
+
+  button {
+    width: 100%;
+  }
+}
