@@ -3,24 +3,23 @@ import { useState } from "react";
 import { initialData, categories } from "../public/data.js";
 
 // Utility button component
+// Renders a button with an onClick handler and custom styling
 function Button({ children, onClick }) {
     return (
         <button onClick={onClick} className="button">{children}</button>
     );
 }
 
+// Utility component for clickable list items
 function ListOnClick({ onClick, className, children }) {
     return (
-        <li
-            onClick={onClick}
-            className={className}
-        >
-            { children }
+        <li onClick={onClick} className={className}>
+            {children}
         </li>
-    )
+    );
 }
 
-// Renders the list of expense names
+// Renders the list of expense names, highlighting the selected item
 function NameTable({ expenses, onSelected, selectedItem, children }) {
     return (
         <div>
@@ -40,23 +39,23 @@ function NameTable({ expenses, onSelected, selectedItem, children }) {
     );
 }
 
-// Renders detailed view of selected expense
+// Renders detailed information about the selected expense
 function Detail({ selectedItem, children }) {
     return (
         <div className="Detail">
-            {children[0]}
+            {children[0]} {/* Header (e.g., title) */}
             <ul>
                 {Object.entries(selectedItem).map(([key, value]) => (
                     <li key={key}>{key}: {value}</li>
                 ))}
             </ul>
-            {children[1]}
-            {children[2]}
+            {children[1]} {/* Update button */}
+            {children[2]} {/* Delete button */}
         </div>
     );
 }
 
-// Renders a summary by category
+// Renders a summary of total expenses by category and allows category filtering
 function CountByCategory({ expenses, categories, onSelected, selectedItem, words }) {
     const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -66,6 +65,7 @@ function CountByCategory({ expenses, categories, onSelected, selectedItem, words
         <div>
             <p className="SectionTitle">{selectedCategory ? words.nameByCategory : words.countByCategory}</p>
             {!selectedCategory ? (
+                // Displays total amount by category
                 <ul className="CountByCategory">
                     {categories.map(category => (
                         <ListOnClick
@@ -80,6 +80,7 @@ function CountByCategory({ expenses, categories, onSelected, selectedItem, words
                     ))}
                 </ul>
             ) : (
+                // Displays filtered expenses when a category is selected
                 <FilterByCategory
                     selectedCategory={selectedCategory}
                     expenses={expenses}
@@ -93,33 +94,23 @@ function CountByCategory({ expenses, categories, onSelected, selectedItem, words
     );
 }
 
-// Filtered view by selected category
+// Shows a list of expenses filtered by the selected category
 function FilterByCategory({ onSelected, selectedCategory, expenses, children, selectedItem }) {
     const filteredExpenses = expenses.filter(expense => expense.category === selectedCategory);
 
     return (
         <div>
-            {/*<div className="MainTable">
-                <ul>
-                    {filteredExpenses.map(expense => (
-                        <li key={expense.id}>
-                            {expense.name} : {expense.amount}
-                        </li>
-                    ))}
-                </ul>
-            </div>*/}
-
             <NameTable
                 onSelected={onSelected}
                 expenses={filteredExpenses}
                 selectedItem={selectedItem}
             />
-            {children}
+            {children} {/* Close button */}
         </div>
     );
 }
 
-// Form to add a new expense
+// Form component to add a new expense with name, amount, and category inputs
 function AddForm({ categories, onAddItem, nextId, children }) {
     const [newName, setNewName] = useState('');
     const [newAmount, setNewAmount] = useState('');
@@ -157,13 +148,13 @@ function AddForm({ categories, onAddItem, nextId, children }) {
                         ))}
                     </select>
                 </div>
-                {children}
+                {children} {/* Add button */}
             </form>
         </div>
     );
 }
 
-// Form to update an expense
+// Form component to update details of an existing expense
 function UpdateForm({ selectedItem, onUpdate, children }) {
     const [name, setName] = useState(selectedItem.name);
     const [amount, setAmount] = useState(selectedItem.amount);
@@ -176,7 +167,7 @@ function UpdateForm({ selectedItem, onUpdate, children }) {
             name: name,
             amount: amount,
             category: category,
-        }
+        };
 
         onUpdate(newExpense);
     }
@@ -201,13 +192,14 @@ function UpdateForm({ selectedItem, onUpdate, children }) {
                         ))}
                     </select>
                 </div>
-                {children}
+                {children} {/* Update and Cancel buttons */}
             </form>
         </div>
     );
 }
 
-function LanguageChoice({ onSetLanguage, language } ) {
+// Dropdown for selecting the app's language
+function LanguageChoice({ onSetLanguage, language }) {
     return (
         <select
             className={'language-choice'}
@@ -217,9 +209,10 @@ function LanguageChoice({ onSetLanguage, language } ) {
             <option value="english">English</option>
             <option value="chinese">中文</option>
         </select>
-    )
+    );
 }
 
+// Text dictionary for multilingual support
 const localeWords = {
     english: {
         name: 'Name',
@@ -243,8 +236,9 @@ const localeWords = {
         close: "关闭",
         cancel: "取消"
     }
-}
+};
 
+// Main app component handling views, state, and routing of actions
 function App() {
     const [language, setLanguage] = useState('english');
     const [view, setView] = useState('detail');
@@ -267,24 +261,20 @@ function App() {
     }
 
     function handleUpdateExpense(newExpense) {
-        // Create a new array with updated expense values
         const updateExpenses = expenses.map(expense =>
             expense.id === newExpense.id
                 ? { ...expense, name: newExpense.name, amount: Number(newExpense.amount), category: newExpense.category }
                 : expense
         );
 
-        // Update the state with the modified expenses array
         setExpenses(updateExpenses);
-
-        // Optionally set the view to 'detail'
         setView('detail');
         setSelectedItem(newExpense);
     }
 
     return (
         <div className="App">
-            <LanguageChoice language={language} onSetLanguage={setLanguage}/>
+            <LanguageChoice language={language} onSetLanguage={setLanguage} />
             <div className="MainTableContainer">
                 <NameTable
                     selectedItem={selectedItem}
@@ -306,10 +296,11 @@ function App() {
                         <Button onClick={() => handleDeleteExpense(selectedItem.id)}>{words.delete}</Button>
                     </Detail>
                 )}
-                {view === 'add' &&
+                {view === 'add' && (
                     <AddForm categories={categories} onAddItem={handleAddExpense} nextId={nextId}>
                         <Button>{words.add}</Button>
-                    </AddForm>}
+                    </AddForm>
+                )}
                 {view === 'update' && selectedItem && (
                     <UpdateForm selectedItem={selectedItem} onUpdate={handleUpdateExpense}>
                         <Button>{words.update}</Button>
