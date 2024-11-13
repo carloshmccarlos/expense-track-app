@@ -21,10 +21,10 @@ function ListOnClick({ onClick, className, children }) {
 }
 
 // Renders the list of expense names
-function NameTable({ expenses, onSelected, selectedItem }) {
+function NameTable({ expenses, onSelected, selectedItem, children }) {
     return (
         <div>
-            <p className="SectionTitle">Name</p>
+            {children}
             <ul className="MainTable">
                 {expenses.map(expense => (
                     <ListOnClick
@@ -41,30 +41,30 @@ function NameTable({ expenses, onSelected, selectedItem }) {
 }
 
 // Renders detailed view of selected expense
-function Detail({ selectedItem, onDelete, onSetView }) {
+function Detail({ selectedItem, children }) {
     return (
         <div className="Detail">
-            <p className="SectionTitle">Detail</p>
+            {children[0]}
             <ul>
                 {Object.entries(selectedItem).map(([key, value]) => (
                     <li key={key}>{key}: {value}</li>
                 ))}
             </ul>
-            <Button onClick={() => onSetView('update')}>Update</Button>
-            <Button onClick={() => onDelete(selectedItem.id)}>Delete</Button>
+            {children[2]}
+            {children[4]}
         </div>
     );
 }
 
 // Renders a summary by category
-function CountByCategory({ expenses, categories, onSelected, selectedItem }) {
+function CountByCategory({ expenses, categories, onSelected, selectedItem, words }) {
     const [selectedCategory, setSelectedCategory] = useState(null);
 
     const handleClose = () => setSelectedCategory(null);
 
     return (
         <div>
-            <p className="SectionTitle">{selectedCategory ? "DetailByCategory" : "CountByCategory"}</p>
+            <p className="SectionTitle">{selectedCategory ? words.nameByCategory : words.countByCategory}</p>
             {!selectedCategory ? (
                 <ul className="CountByCategory">
                     {categories.map(category => (
@@ -83,17 +83,19 @@ function CountByCategory({ expenses, categories, onSelected, selectedItem }) {
                 <FilterByCategory
                     selectedCategory={selectedCategory}
                     expenses={expenses}
-                    onClose={handleClose}
                     onSelected={onSelected}
                     selectedItem={selectedItem}
-                />
+                >
+                    <Button onClick={() => handleClose(null)}>{words.close}</Button>
+                </FilterByCategory>
             )}
+
         </div>
     );
 }
 
 // Filtered view by selected category
-function FilterByCategory({ onSelected, selectedCategory, expenses, onClose, selectedItem }) {
+function FilterByCategory({ onSelected, selectedCategory, expenses, children, selectedItem }) {
     const filteredExpenses = expenses.filter(expense => expense.category === selectedCategory);
 
     return (
@@ -113,13 +115,13 @@ function FilterByCategory({ onSelected, selectedCategory, expenses, onClose, sel
                 expenses={filteredExpenses}
                 selectedItem={selectedItem}
             />
-            <Button onClick={() => onClose(null)}>Close</Button>
+            {children}
         </div>
     );
 }
 
 // Form to add a new expense
-function AddForm({ categories, onAddItem, nextId }) {
+function AddForm({ categories, onAddItem, nextId, children }) {
     const [newName, setNewName] = useState('');
     const [newAmount, setNewAmount] = useState('');
     const [newCategory, setNewCategory] = useState('Food');
@@ -156,21 +158,28 @@ function AddForm({ categories, onAddItem, nextId }) {
                         ))}
                     </select>
                 </div>
-                <Button>Add</Button>
+                {children}
             </form>
         </div>
     );
 }
 
 // Form to update an expense
-function UpdateForm({ selectedItem, onUpdate, onCancel }) {
+function UpdateForm({ selectedItem, onUpdate, children }) {
     const [name, setName] = useState(selectedItem.name);
     const [amount, setAmount] = useState(selectedItem.amount);
     const [category, setCategory] = useState(selectedItem.category);
 
     function handleSubmit(e) {
         e.preventDefault();
-        onUpdate({ ...selectedItem, name, amount: Number(amount), category });
+        const newExpense = {
+            id: selectedItem.id,
+            name: name,
+            amount: amount,
+            category: category,
+        }
+
+        onUpdate(newExpense);
     }
 
     return (
@@ -193,19 +202,58 @@ function UpdateForm({ selectedItem, onUpdate, onCancel }) {
                         ))}
                     </select>
                 </div>
-                <Button>Update</Button>
+                {children}
             </form>
-            <Button onClick={onCancel}>Cancel</Button>
         </div>
     );
 }
 
+function LanguageChoice({ onSetLanguage, language } ) {
+    return (
+        <select
+            className={'language-choice'}
+            onChange={e => onSetLanguage(e.target.value)}
+            value={language}
+        >
+            <option value="english">English</option>
+            <option value="chinese">中文</option>
+        </select>
+    )
+}
+
+const localeWords = {
+    english: {
+        name: 'Name',
+        detail: 'Detail',
+        countByCategory: 'CountByCategory',
+        nameByCategory: 'nameByCategory',
+        add: 'Add',
+        update: 'Update',
+        delete: 'Delete',
+        close: 'Close',
+        cancel: 'Cancel',
+    },
+    chinese: {
+        name: "名称",
+        detail: "详情",
+        countByCategory: "按类别统计",
+        nameByCategory: '按类别分类',
+        add: "添加",
+        update: "更新",
+        delete: "删除",
+        close: "关闭",
+        cancel: "取消"
+    }
+}
+
 function App() {
+    const [language, setLanguage] = useState('english');
     const [view, setView] = useState('detail');
     const [expenses, setExpenses] = useState(initialData);
     const [selectedItem, setSelectedItem] = useState(expenses[0]);
 
     const nextId = expenses.length + 1;
+    const words = localeWords[language];
 
     function handleAddExpense(newExpense) {
         setExpenses([...expenses, newExpense]);
@@ -219,25 +267,55 @@ function App() {
         setSelectedItem(updatedExpenses[0] || null);
     }
 
-    function handleUpdateExpense(updatedExpense) {
-        setExpenses(expenses.map(exp => (exp.id === updatedExpense.id ? updatedExpense : exp)));
+    function handleUpdateExpense(newExpense) {
+        // Create a new array with updated expense values
+        const updateExpenses = expenses.map(expense =>
+            expense.id === newExpense.id
+                ? { ...expense, name: newExpense.name, amount: Number(newExpense.amount), category: newExpense.category }
+                : expense
+        );
+
+        // Update the state with the modified expenses array
+        setExpenses(updateExpenses);
+
+        // Optionally set the view to 'detail'
         setView('detail');
+        setSelectedItem(newExpense);
     }
 
     return (
         <div className="App">
+            <LanguageChoice language={language} onSetLanguage={setLanguage}/>
             <div className="MainTableContainer">
-                <NameTable selectedItem={selectedItem} expenses={expenses} onSelected={setSelectedItem} />
-                <Button onClick={() => setView(view === 'add' ? 'detail' : 'add')}>{view === 'add' ? 'Close' : 'Add'}</Button>
+                <NameTable
+                    selectedItem={selectedItem}
+                    expenses={expenses}
+                    onSelected={setSelectedItem}
+                >
+                    <p className="SectionTitle">{words.name}</p>
+                </NameTable>
+                <Button onClick={() => setView(view === 'add' ? 'detail' : 'add')}>
+                    {view === 'add' ? words.close : words.add}
+                </Button>
             </div>
 
             <div className="DetailContainer">
                 {view === 'detail' && selectedItem && (
-                    <Detail selectedItem={selectedItem} onDelete={handleDeleteExpense} onSetView={setView} />
+                    <Detail selectedItem={selectedItem}>
+                        <p className="SectionTitle">{words.detail}</p>,
+                        <Button onClick={() => setView('update')}>{words.update}</Button>,
+                        <Button onClick={() => handleDeleteExpense(selectedItem.id)}>{words.delete}</Button>
+                    </Detail>
                 )}
-                {view === 'add' && <AddForm categories={categories} onAddItem={handleAddExpense} nextId={nextId} />}
+                {view === 'add' &&
+                    <AddForm categories={categories} onAddItem={handleAddExpense} nextId={nextId}>
+                        <Button>{words.add}</Button>
+                    </AddForm>}
                 {view === 'update' && selectedItem && (
-                    <UpdateForm selectedItem={selectedItem} onUpdate={handleUpdateExpense} onCancel={() => setView('detail')} />
+                    <UpdateForm selectedItem={selectedItem} onUpdate={handleUpdateExpense}>
+                        <Button>{words.update}</Button>
+                        <Button onClick={() => setView('detail')}>{words.cancel}</Button>
+                    </UpdateForm>
                 )}
             </div>
 
@@ -247,6 +325,7 @@ function App() {
                     expenses={expenses}
                     categories={categories}
                     selectedItem={selectedItem}
+                    words={words}
                 />
             </div>
         </div>

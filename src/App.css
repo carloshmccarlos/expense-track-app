@@ -12,6 +12,11 @@ div {
   color: #333;
 }
 
+body{
+  position: relative;
+  background-color: #fff9db;
+}
+
 .button{
   display: inline-block;
   width: 10rem;
@@ -141,4 +146,10 @@ input[type="text"]:focus, select:focus {
   button {
     width: 100%;
   }
+}
+
+.language-choice{
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
 }
