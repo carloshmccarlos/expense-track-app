@@ -5,17 +5,17 @@ This application is a simple, tiny, multilingual
 It is for me to practice using the hook of 'useState',
 and the hook used in this project is 'useState' only,
 so it's very suitable for those React beginner who yet learn 
-other intermediate hooks to practice with.
+other intermediate hooks to practice with.\
 It provides users with the ability to add, update, 
 and view expenses, as well as summarize them by 
 category. The app maintains a structured UI with 
 several interactive components, allowing for 
 straightforward tracking and management of personal
-finances.
+finances. \
 Please do not pay your attention to the css, I made it with Chatgpt,
 so the css class name is not standard like starting with a lowercase letter 
 and being seperated with '-' between the words.I will improve it of course 
-after I learn the tailwind css.
+after I learn the tailwind css.\
 I am still learning, so I will improve this project in the future 
 with some more powerful hooks and add the backend in it,but any way I will keep 
 this first version that is using 'useState' only.
