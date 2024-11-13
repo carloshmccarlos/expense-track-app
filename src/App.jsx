@@ -1,121 +1,139 @@
 import './App.css';
-import {useState} from "react";
-import {initialData, categories} from "../public/data.js";
+import { useState } from "react";
+import { initialData, categories } from "../public/data.js";
 
+// Utility button component
+function Button({ children, onClick }) {
+    return (
+        <button onClick={onClick} className="button">{children}</button>
+    );
+}
+
+function ListOnClick({ onClick, className, children }) {
+    return (
+        <li
+            onClick={onClick}
+            className={className}
+        >
+            { children }
+        </li>
+    )
+}
+
+// Renders the list of expense names
 function NameTable({ expenses, onSelected, selectedItem }) {
-
     return (
         <div>
             <p className="SectionTitle">Name</p>
             <ul className="MainTable">
                 {expenses.map(expense => (
-                    <li onClick={() => onSelected(expense)} key={expense.id}
-                        className={`Item ${selectedItem.id === expense.id ? 'selected' : ''}`}>
+                    <ListOnClick
+                        key={expense.id}
+                        onClick={() => onSelected(expense)}
+                        className={`Item ${selectedItem.id === expense.id ? 'selected' : ''}`}
+                    >
                         {expense.id} : {expense.name}
-
-                    </li>
+                    </ListOnClick>
                 ))}
             </ul>
         </div>
-    )
+    );
 }
 
-function Button({children, onClick}) {
-    return (
-        <button onClick={onClick} className="button">{children}</button>
-    )
-}
-
-function Detail({selectedItem, onDelete, onSetWhichIsToShow }) {
+// Renders detailed view of selected expense
+function Detail({ selectedItem, onDelete, onSetView }) {
     return (
         <div className="Detail">
             <p className="SectionTitle">Detail</p>
             <ul>
-            <li>id: {selectedItem.id}</li>
-                <li>name: {selectedItem.name}</li>
-                <li>amount: {selectedItem.amount}</li>
-                <li>category: {selectedItem.category}</li>
+                {Object.entries(selectedItem).map(([key, value]) => (
+                    <li key={key}>{key}: {value}</li>
+                ))}
             </ul>
-            <Button onClick={() => onSetWhichIsToShow('update')}>Update</Button>
+            <Button onClick={() => onSetView('update')}>Update</Button>
             <Button onClick={() => onDelete(selectedItem.id)}>Delete</Button>
         </div>
-    )
+    );
 }
 
-function CountByCateGory({expenses, categories }) {
+// Renders a summary by category
+function CountByCategory({ expenses, categories, onSelected, selectedItem }) {
     const [selectedCategory, setSelectedCategory] = useState(null);
 
+    const handleClose = () => setSelectedCategory(null);
+
     return (
         <div>
-            {!selectedCategory ?
-                <p className="SectionTitle">CountByCategory</p>:
-                <p className="SectionTitle">DetailByCategory</p>
-            }
-
-            {
-                    !selectedCategory ?
-                        <ul className="CountByCategory">
-                            {categories.map(category => (
-                                <li onClick={() => setSelectedCategory(category)} value={category} key={category}
-                                    className={'Item'}>
-                                    {category}: {
-                                    expenses.filter(expense => expense.category === category)
-                                        .reduce((count, expense) => count + expense.amount, 0)
-                                }
-                                    $
-                                </li>
-                            ))}
-                        </ul> :
-                        <FilterByCategory
-                            selectedCategory={selectedCategory}
-                            expenses={expenses}
-                            onClose={setSelectedCategory}
-                        />
-            }
+            <p className="SectionTitle">{selectedCategory ? "DetailByCategory" : "CountByCategory"}</p>
+            {!selectedCategory ? (
+                <ul className="CountByCategory">
+                    {categories.map(category => (
+                        <ListOnClick
+                            key={category}
+                            onClick={() => setSelectedCategory(category)}
+                            className="Item"
+                        >
+                            {category}: {expenses
+                            .filter(expense => expense.category === category)
+                            .reduce((sum, expense) => sum + expense.amount, 0)}$
+                        </ListOnClick>
+                    ))}
+                </ul>
+            ) : (
+                <FilterByCategory
+                    selectedCategory={selectedCategory}
+                    expenses={expenses}
+                    onClose={handleClose}
+                    onSelected={onSelected}
+                    selectedItem={selectedItem}
+                />
+            )}
         </div>
-    )
+    );
 }
 
-function FilterByCategory({selectedCategory, expenses, onClose}) {
-    const expensesFiltered = expenses.filter(expense => expense.category === selectedCategory);
+// Filtered view by selected category
+function FilterByCategory({ onSelected, selectedCategory, expenses, onClose, selectedItem }) {
+    const filteredExpenses = expenses.filter(expense => expense.category === selectedCategory);
 
     return (
         <div>
-            <div className="MainTable">
+            {/*<div className="MainTable">
                 <ul>
-                    {expensesFiltered.map(expense => (
+                    {filteredExpenses.map(expense => (
                         <li key={expense.id}>
                             {expense.name} : {expense.amount}
                         </li>
                     ))}
                 </ul>
+            </div>*/}
 
-            </div>
+            <NameTable
+                onSelected={onSelected}
+                expenses={filteredExpenses}
+                selectedItem={selectedItem}
+            />
             <Button onClick={() => onClose(null)}>Close</Button>
         </div>
-    )
+    );
 }
 
-function AddForm({ categories, onAddItem, length}) {
+// Form to add a new expense
+function AddForm({ categories, onAddItem, nextId }) {
     const [newName, setNewName] = useState('');
-    const [newCount, setNewCount] = useState('');
+    const [newAmount, setNewAmount] = useState('');
     const [newCategory, setNewCategory] = useState('Food');
 
     function handleSubmit(e) {
         e.preventDefault();
+        if (!newName || !newAmount) return;
 
-        if (!newName || !newCategory || !newCount) {
-            return null;
-        }
-
-        const newExpense = {
-            id: length + 1,
+        onAddItem({
+            id: nextId,
             name: newName,
-            amount: Number(newCount),
+            amount: Number(newAmount),
             category: newCategory,
-        }
-
-        onAddItem(newExpense);
+        });
     }
 
     return (
@@ -124,23 +142,12 @@ function AddForm({ categories, onAddItem, length}) {
             <form onSubmit={handleSubmit} className="AddForm">
                 <div>
                     <label>Name</label>
-                    <input
-                        type="text"
-                        onChange={e => setNewName(e.target.value)}
-                        value={newName}
-                        className="Input"
-                    />
+                    <input type="text" value={newName} onChange={e => setNewName(e.target.value)} className="Input" />
                 </div>
-
                 <div>
-                    <label>Count</label>
-                    <input onChange={e => setNewCount(e.target.value)}
-                           type="text"
-                           value={newCount}
-                           className="Input"
-                    />
+                    <label>Amount</label>
+                    <input type="number" value={newAmount} onChange={e => setNewAmount(e.target.value)} className="Input" />
                 </div>
-
                 <div>
                     <label>Category</label>
                     <select value={newCategory} onChange={e => setNewCategory(e.target.value)} className="Input">
@@ -149,33 +156,21 @@ function AddForm({ categories, onAddItem, length}) {
                         ))}
                     </select>
                 </div>
-
                 <Button>Add</Button>
             </form>
         </div>
-    )
+    );
 }
 
-function UpdateForm({ selectedItem, onUpdate, onSetWhichIsToShow }) {
-    const [newName, setNewName] = useState(selectedItem.name);
-    const [newCount, setNewCount] = useState(selectedItem.amount);
-    const [newCategory, setNewCategory] = useState(selectedItem.category);
+// Form to update an expense
+function UpdateForm({ selectedItem, onUpdate, onCancel }) {
+    const [name, setName] = useState(selectedItem.name);
+    const [amount, setAmount] = useState(selectedItem.amount);
+    const [category, setCategory] = useState(selectedItem.category);
 
     function handleSubmit(e) {
         e.preventDefault();
-
-        if (!newName || !newCount || !newCategory) {
-            return null;
-        }
-
-        const newExpense = {
-            id: selectedItem.id,
-            name: newName,
-            amount: Number(newCount),
-            category: newCategory,
-        }
-
-        onUpdate(newExpense);
+        onUpdate({ ...selectedItem, name, amount: Number(amount), category });
     }
 
     return (
@@ -184,144 +179,78 @@ function UpdateForm({ selectedItem, onUpdate, onSetWhichIsToShow }) {
             <form onSubmit={handleSubmit} className="AddForm">
                 <div>
                     <label>Name</label>
-                    <input
-                        type="text"
-                        onChange={e => setNewName(e.target.value)}
-                        value={newName}
-                        className="Input"
-                    />
+                    <input type="text" value={name} onChange={e => setName(e.target.value)} className="Input" />
                 </div>
-
                 <div>
-                    <label>Count</label>
-                    <input onChange={e => setNewCount(e.target.value)}
-                           type="text"
-                           value={newCount}
-                           className="Input"
-                    />
+                    <label>Amount</label>
+                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} className="Input" />
                 </div>
-
                 <div>
                     <label>Category</label>
-                    <select value={newCategory} onChange={e => setNewCategory(e.target.value)} className="Input">
-                        {categories.map(category => (
-                            <option key={category} value={category}>{category}</option>
+                    <select value={category} onChange={e => setCategory(e.target.value)} className="Input">
+                        {categories.map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
                         ))}
                     </select>
                 </div>
-
                 <Button>Update</Button>
             </form>
-            <Button onClick={() => {onSetWhichIsToShow('detail')}}>Cancel</Button>
+            <Button onClick={onCancel}>Cancel</Button>
         </div>
-    )
+    );
 }
 
-let id = initialData.length;
-
 function App() {
-    const [whichIsToShow, setWhichIsToShow] = useState('detail');
+    const [view, setView] = useState('detail');
     const [expenses, setExpenses] = useState(initialData);
     const [selectedItem, setSelectedItem] = useState(expenses[0]);
 
-    function handleSelected(expense) {
-        setSelectedItem(expense);
-        setWhichIsToShow('detail');
-    }
+    const nextId = expenses.length + 1;
 
-
-    function handleAddToShow() {
-        if (whichIsToShow === 'add') {
-            setWhichIsToShow('detail');
-            return;
-        }
-
-        setWhichIsToShow('add');
+    function handleAddExpense(newExpense) {
+        setExpenses([...expenses, newExpense]);
+        setSelectedItem(newExpense);
+        setView('detail');
     }
 
     function handleDeleteExpense(id) {
-        const updatedExpense = expenses.filter(expense => expense.id !== id);
-
-        setExpenses(updatedExpense);
-        setSelectedItem(updatedExpense[0]);
-
+        const updatedExpenses = expenses.filter(expense => expense.id !== id);
+        setExpenses(updatedExpenses);
+        setSelectedItem(updatedExpenses[0] || null);
     }
 
-    function handleAddItem(newExpense) {
-        const updatedExpense = [...expenses, newExpense];
-
-        setExpenses(updatedExpense);
-        setSelectedItem(updatedExpense[updatedExpense.length - 1]);
-
-        setWhichIsToShow('detail');
-
-        id = id + 1;
-    }
-
-    function handleUpdate(newExpense) {
-        const updatedExpense = [...expenses];
-
-        const selectedExpense = updatedExpense.find(
-            expense => expense.id === newExpense.id
-        );
-
-        selectedExpense.name = newExpense.name;
-        selectedExpense.amount = Number(newExpense.amount);
-        selectedExpense.category = newExpense.category;
-
-        setExpenses(updatedExpense);
-
-        setWhichIsToShow('detail');
+    function handleUpdateExpense(updatedExpense) {
+        setExpenses(expenses.map(exp => (exp.id === updatedExpense.id ? updatedExpense : exp)));
+        setView('detail');
     }
 
     return (
         <div className="App">
             <div className="MainTableContainer">
-
-                <NameTable
-                    selectedItem={selectedItem}
-                    expenses={expenses}
-                    onSelected={handleSelected}
-                />
-                <Button onClick={handleAddToShow}>
-                    { whichIsToShow === 'add' && 'Close'}
-                    { whichIsToShow === 'detail' && 'Add'}
-                    { whichIsToShow === 'update' && 'Add'}
-                </Button>
+                <NameTable selectedItem={selectedItem} expenses={expenses} onSelected={setSelectedItem} />
+                <Button onClick={() => setView(view === 'add' ? 'detail' : 'add')}>{view === 'add' ? 'Close' : 'Add'}</Button>
             </div>
 
             <div className="DetailContainer">
-
-                { whichIsToShow === 'detail' &&
-                    <Detail
-                        selectedItem={selectedItem}
-                        onDelete={handleDeleteExpense}
-                        onSetWhichIsToShow={setWhichIsToShow}
-                    /> }
-                { whichIsToShow === 'add' &&
-                    <AddForm
-                        categories={categories}
-                        onAddItem={handleAddItem}
-                        length={id}
-                    /> }
-
-                { whichIsToShow === 'update' &&
-                    <UpdateForm
-                        selectedItem={selectedItem}
-                        onUpdate={handleUpdate}
-                        onSetWhichIsToShow={setWhichIsToShow}
-                    /> }
+                {view === 'detail' && selectedItem && (
+                    <Detail selectedItem={selectedItem} onDelete={handleDeleteExpense} onSetView={setView} />
+                )}
+                {view === 'add' && <AddForm categories={categories} onAddItem={handleAddExpense} nextId={nextId} />}
+                {view === 'update' && selectedItem && (
+                    <UpdateForm selectedItem={selectedItem} onUpdate={handleUpdateExpense} onCancel={() => setView('detail')} />
+                )}
             </div>
 
             <div className="CountByCategoryContainer">
-
-                <CountByCateGory
+                <CountByCategory
+                    onSelected={setSelectedItem}
                     expenses={expenses}
                     categories={categories}
+                    selectedItem={selectedItem}
                 />
             </div>
         </div>
-    )
+    );
 }
 
 export default App;
