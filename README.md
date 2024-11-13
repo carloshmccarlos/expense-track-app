@@ -20,6 +20,8 @@ I am still learning, so I will improve this project in the future
 with some more powerful hooks and add the backend on it,but I keep this first version
 which is with 'useState' only.
 
+The demo link: https://www.carloshmccarlos.dynv6.net/
+
 ## Table of Contents
 - [Features](#features)
 - [Components](#components)
@@ -88,4 +90,6 @@ The `localeWords` object provides translations for text elements in English and 
 
 ---
 
-This app is designed to help users manage personal expenses in an intuitive, multilingual environment, with key functionalities such as adding, updating, and filtering by category.
+This app is designed to help users manage personal expenses in an 
+intuitive, multilingual environment, with key functionalities 
+such as adding, updating, and filtering by category.
