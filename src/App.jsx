@@ -50,8 +50,8 @@ function Detail({ selectedItem, children }) {
                     <li key={key}>{key}: {value}</li>
                 ))}
             </ul>
+            {children[1]}
             {children[2]}
-            {children[4]}
         </div>
     );
 }
@@ -89,7 +89,6 @@ function CountByCategory({ expenses, categories, onSelected, selectedItem, words
                     <Button onClick={() => handleClose(null)}>{words.close}</Button>
                 </FilterByCategory>
             )}
-
         </div>
     );
 }
@@ -226,7 +225,7 @@ const localeWords = {
         name: 'Name',
         detail: 'Detail',
         countByCategory: 'CountByCategory',
-        nameByCategory: 'nameByCategory',
+        nameByCategory: 'NameByCategory',
         add: 'Add',
         update: 'Update',
         delete: 'Delete',
@@ -302,8 +301,8 @@ function App() {
             <div className="DetailContainer">
                 {view === 'detail' && selectedItem && (
                     <Detail selectedItem={selectedItem}>
-                        <p className="SectionTitle">{words.detail}</p>,
-                        <Button onClick={() => setView('update')}>{words.update}</Button>,
+                        <p className="SectionTitle">{words.detail}</p>
+                        <Button onClick={() => setView('update')}>{words.update}</Button>
                         <Button onClick={() => handleDeleteExpense(selectedItem.id)}>{words.delete}</Button>
                     </Detail>
                 )}
