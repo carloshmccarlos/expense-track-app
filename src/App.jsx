@@ -302,7 +302,7 @@ function App() {
                     </AddForm>
                 )}
                 {view === 'update' && selectedItem && (
-                    <UpdateForm selectedItem={selectedItem} onUpdate={handleUpdateExpense}>
+                    <UpdateForm key={selectedItem.id} selectedItem={selectedItem} onUpdate={handleUpdateExpense}>
                         <Button>{words.update}</Button>
                         <Button onClick={() => setView('detail')}>{words.cancel}</Button>
                     </UpdateForm>
