@@ -111,7 +111,7 @@ function FilterByCategory({ onSelected, selectedCategory, expenses, children, se
 }
 
 // Form component to add a new expense with name, amount, and category inputs
-function AddForm({ categories, onAddItem, nextId, children }) {
+function AddForm({ categories, onAddItem, nextId, children, words }) {
     const [newName, setNewName] = useState('');
     const [newAmount, setNewAmount] = useState('');
     const [newCategory, setNewCategory] = useState('Food');
@@ -130,7 +130,7 @@ function AddForm({ categories, onAddItem, nextId, children }) {
 
     return (
         <div>
-            <p className="SectionTitle">Add</p>
+            <p className="SectionTitle">{words.add}</p>
             <form onSubmit={handleSubmit} className="AddForm">
                 <div>
                     <label>Name</label>
@@ -155,7 +155,7 @@ function AddForm({ categories, onAddItem, nextId, children }) {
 }
 
 // Form component to update details of an existing expense
-function UpdateForm({ selectedItem, onUpdate, children }) {
+function UpdateForm({ selectedItem, onUpdate, children, words }) {
     const [name, setName] = useState(selectedItem.name);
     const [amount, setAmount] = useState(selectedItem.amount);
     const [category, setCategory] = useState(selectedItem.category);
@@ -174,7 +174,7 @@ function UpdateForm({ selectedItem, onUpdate, children }) {
 
     return (
         <div>
-            <p className="SectionTitle">Update</p>
+            <p className="SectionTitle">{words.update}</p>
             <form onSubmit={handleSubmit} className="AddForm">
                 <div>
                     <label>Name</label>
@@ -297,12 +297,17 @@ function App() {
                     </Detail>
                 )}
                 {view === 'add' && (
-                    <AddForm categories={categories} onAddItem={handleAddExpense} nextId={nextId}>
+                    <AddForm words={words} categories={categories} onAddItem={handleAddExpense} nextId={nextId}>
                         <Button>{words.add}</Button>
                     </AddForm>
                 )}
                 {view === 'update' && selectedItem && (
-                    <UpdateForm key={selectedItem.id} selectedItem={selectedItem} onUpdate={handleUpdateExpense}>
+                    <UpdateForm
+                        words={words}
+                        key={selectedItem.id}
+                        selectedItem={selectedItem}
+                        onUpdate={handleUpdateExpense}
+                    >
                         <Button>{words.update}</Button>
                         <Button onClick={() => setView('detail')}>{words.cancel}</Button>
                     </UpdateForm>
