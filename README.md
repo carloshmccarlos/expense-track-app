@@ -20,6 +20,8 @@ I am still learning, so I will improve this project in the future
 with some more powerful hooks and add the backend in it,but any way I will keep 
 this first version that is using 'useState' only.
 
+The next version of using useReducer instead of useState in most of 
+cases is here: https://github.com/carloshmccarlos/expense-track-app-useReducer \
 The demo link: https://www.carloshmccarlos.dynv6.net/
 
 ## Table of Contents
